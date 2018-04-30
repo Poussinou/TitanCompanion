@@ -1,10 +1,12 @@
 package pt.joaomneto.titancompanion.adventure.state
 
+import pt.joaomneto.titancompanion.adventure.impl.fragments.AdventureCombatFragment
 import pt.joaomneto.titancompanion.adventure.state.DefaultStateKey.*
 import pt.joaomneto.titancompanion.consts.FightingFantasyGamebook
+import java.util.ArrayList
 
 open class AdventureState(
-        open val values: Map<out StateKey, Any>
+    open val values: Map<out StateKey, Any>
 ) {
 
     val gamebook: FightingFantasyGamebook
@@ -40,8 +42,13 @@ open class AdventureState(
     val standardPotionValue: Int
         get() = values[STANDARD_POTION_VALUE] as Int
 
+    //Combat
+
+    val combat: CombatState
+        get() = values[COMBAT] as CombatState
+
     constructor(state: AdventureState) : this(
-            state.values
+        state.values
     )
 
     fun checkSkill(): Boolean = pt.joaomneto.titancompanion.util.DiceRoller.roll2D6().sum <= currentSkill
@@ -54,52 +61,52 @@ open class AdventureState(
 
     fun toSavegameString(): String {
         return values
-                .map {
-                    "${it.key.saveFileKey}=${it.key.serializer?.invoke(it.value) ?: it.value}"
-                }
-                .sorted()
-                .joinToString(separator = "\n")
+            .map {
+                "${it.key.saveFileKey}=${it.key.serializer?.invoke(it.value) ?: it.value}"
+            }
+            .sorted()
+            .joinToString(separator = "\n")
     }
 
     open fun storeAdventureSpecificValuesInFile(): String = ""
 
     companion object {
         fun toValueMap(
-                gamebook: FightingFantasyGamebook,
-                name: String,
-                initialSkill: Int,
-                initialLuck: Int,
-                initialStamina: Int,
-                currentSkill: Int,
-                currentLuck: Int,
-                currentStamina: Int,
-                equipment: List<String>,
-                notes: List<String>,
-                gold: Int,
-                provisions: Int,
-                provisionsValue: Int,
-                currentReference: Int,
-                standardPotion: Int,
-                standardPotionValue: Int
+            gamebook: FightingFantasyGamebook,
+            name: String,
+            initialSkill: Int,
+            initialLuck: Int,
+            initialStamina: Int,
+            currentSkill: Int,
+            currentLuck: Int,
+            currentStamina: Int,
+            equipment: List<String>,
+            notes: List<String>,
+            gold: Int,
+            provisions: Int,
+            provisionsValue: Int,
+            currentReference: Int,
+            standardPotion: Int,
+            standardPotionValue: Int
         ) =
-                mapOf(
-                        GAMEBOOK to gamebook,
-                        NAME to name,
-                        INITIAL_SKILL to initialSkill,
-                        INITIAL_LUCK to initialLuck,
-                        INITIAL_STAMINA to initialStamina,
-                        CURRENT_SKILL to currentSkill,
-                        CURRENT_LUCK to currentLuck,
-                        CURRENT_STAMINA to currentStamina,
-                        EQUIPMENT to equipment,
-                        NOTES to notes,
-                        GOLD to gold,
-                        PROVISIONS to provisions,
-                        PROVISIONS_VALUE to provisionsValue,
-                        CURRENT_REFERENCE to currentReference,
-                        STANDARD_POTION to standardPotion,
-                        STANDARD_POTION_VALUE to standardPotionValue
-                )
+            mapOf(
+                GAMEBOOK to gamebook,
+                NAME to name,
+                INITIAL_SKILL to initialSkill,
+                INITIAL_LUCK to initialLuck,
+                INITIAL_STAMINA to initialStamina,
+                CURRENT_SKILL to currentSkill,
+                CURRENT_LUCK to currentLuck,
+                CURRENT_STAMINA to currentStamina,
+                EQUIPMENT to equipment,
+                NOTES to notes,
+                GOLD to gold,
+                PROVISIONS to provisions,
+                PROVISIONS_VALUE to provisionsValue,
+                CURRENT_REFERENCE to currentReference,
+                STANDARD_POTION to standardPotion,
+                STANDARD_POTION_VALUE to standardPotionValue
+            )
 
         fun arrayToString(elements: Collection<Any>): String {
             var _string = ""
@@ -154,7 +161,7 @@ open class AdventureState(
         inline fun <reified Y : kotlin.Enum<Y>> stringToEnumList(equipmentS: String): List<Y> {
             return stringToStringList(equipmentS).map {
                 safeValueOf<Y>(
-                        it
+                    it
                 )!!
             }
         }
@@ -170,11 +177,27 @@ open class AdventureState(
             return java.lang.Enum.valueOf(T::class.java, type)
         }
     }
+
+    class CombatState(open val values: Map<out StateKey, Any>) {
+
+        val combatPositions
+            get() = values[CombatStateKey.COMBAT_POSITIONS] as MutableList<AdventureCombatFragment.Combatant>
+//        val combatMode = NORMAL
+//        val draw = false
+//        val luckTest = false
+//        val hit = false
+//        val combatStarted = false
+//        val staminaLoss = 0
+
+        init {
+            values[CombatStateKey.COMBAT_POSITIONS] = ArrayList<AdventureCombatFragment.Combatant>()
+        }
+    }
 }
 
 enum class DefaultStateKey(
-        override val saveFileKey: String,
-        override val serializer: ((Any) -> String)? = null
+    override val saveFileKey: String? = null,
+    override val serializer: ((Any) -> String)? = null
 ) : StateKey {
     GAMEBOOK("gamebook"),
     NAME("name"),
@@ -186,12 +209,12 @@ enum class DefaultStateKey(
     CURRENT_STAMINA("currentStamina"),
     EQUIPMENT("equipment", {
         AdventureState.stringListToText(
-                it as List<String>
+            it as List<String>
         )
     }),
     NOTES("notes", {
         AdventureState.stringListToText(
-                it as List<String>
+            it as List<String>
         )
     }),
     GOLD("gold"),
@@ -199,5 +222,13 @@ enum class DefaultStateKey(
     PROVISIONS_VALUE("provisionsValue"),
     CURRENT_REFERENCE("currentReference"),
     STANDARD_POTION("standardPotion"),
-    STANDARD_POTION_VALUE("standardPotionValue")
+    STANDARD_POTION_VALUE("standardPotionValue"),
+    COMBAT
+}
+
+enum class CombatStateKey(
+    override val saveFileKey: String? = null,
+    override val serializer: ((Any) -> String)? = null
+) : StateKey {
+    COMBAT_POSITIONS
 }

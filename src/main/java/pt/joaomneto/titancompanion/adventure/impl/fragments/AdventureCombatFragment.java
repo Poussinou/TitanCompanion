@@ -25,28 +25,18 @@ public class AdventureCombatFragment extends AdventureFragment {
 
     public static final String NORMAL = "NORMAL";
     public static final String SEQUENCE = "SEQUENCE";
+
     protected TextView combatResult = null;
-    protected Button startCombatButton = null;
-    protected Button combatTurnButton = null;
+    protected Button startCombat = null;
+    protected Button attackButton = null;
     protected Button addCombatButton = null;
     protected Button testLuckButton = null;
-    protected Button resetButton = null;
-    protected Button resetButton2 = null;
-    protected Switch combatTypeSwitch = null;
+    protected Button resetCombat = null;
+    protected Button resetCombat2 = null;
+    protected Switch combatType = null;
     protected View rootView = null;
-    protected List<Combatant> combatPositions = new ArrayList<AdventureCombatFragment.Combatant>();
     protected CombatantListAdapter combatantListAdapter = null;
-    protected ListView combatantsListView = null;
-    protected String combatMode = NORMAL;
-    protected int handicap = 0;
-
-    protected boolean draw = false;
-    protected boolean luckTest = false;
-    protected boolean hit = false;
-
-    protected boolean combatStarted = false;
-
-    protected int staminaLoss = 0;
+    protected ListView combatants = null;
 
     public AdventureCombatFragment() {
 
@@ -76,7 +66,7 @@ public class AdventureCombatFragment extends AdventureFragment {
 
         if (combatStarted == false) {
             combatStarted = true;
-            combatTypeSwitch.setClickable(false);
+            combatType.setClickable(false);
         }
 
         if (combatMode.equals(SEQUENCE)) {
@@ -93,12 +83,12 @@ public class AdventureCombatFragment extends AdventureFragment {
 
     protected void switchLayoutCombatStarted() {
         addCombatButton.setVisibility(View.GONE);
-        combatTypeSwitch.setVisibility(View.GONE);
-        startCombatButton.setVisibility(View.GONE);
-        resetButton.setVisibility(View.GONE);
-        resetButton2.setVisibility(View.VISIBLE);
+        combatType.setVisibility(View.GONE);
+        startCombat.setVisibility(View.GONE);
+        resetCombat.setVisibility(View.GONE);
+        resetCombat2.setVisibility(View.VISIBLE);
         testLuckButton.setVisibility(View.VISIBLE);
-        combatTurnButton.setVisibility(View.VISIBLE);
+        attackButton.setVisibility(View.VISIBLE);
 
     }
 
@@ -113,21 +103,21 @@ public class AdventureCombatFragment extends AdventureFragment {
     protected void init() {
 
         combatResult = rootView.findViewById(R.id.combatResult);
-        combatTurnButton = rootView.findViewById(R.id.attackButton);
-        startCombatButton = rootView.findViewById(R.id.startCombat);
+        attackButton = rootView.findViewById(R.id.attackButton);
+        startCombat = rootView.findViewById(R.id.startCombat);
         addCombatButton = rootView.findViewById(R.id.addCombatButton);
-        combatTypeSwitch = rootView.findViewById(R.id.combatType);
-        resetButton = rootView.findViewById(R.id.resetCombat);
-        resetButton2 = rootView.findViewById(R.id.resetCombat2);
+        combatType = rootView.findViewById(R.id.combatType);
+        resetCombat = rootView.findViewById(R.id.resetCombat);
+        resetCombat2 = rootView.findViewById(R.id.resetCombat2);
         testLuckButton = rootView.findViewById(R.id.testLuckButton);
 
-        combatTypeSwitch.setTextOff(getOfftext());
-        combatTypeSwitch.setTextOn(getOntext());
-        combatTypeSwitch.setOnCheckedChangeListener(new CombatTypeSwitchChangeListener());
+        combatType.setTextOff(getOfftext());
+        combatType.setTextOn(getOntext());
+        combatType.setOnCheckedChangeListener(new CombatTypeSwitchChangeListener());
 
-        combatantsListView = rootView.findViewById(R.id.combatants);
+        combatants = rootView.findViewById(R.id.combatants);
         combatantListAdapter = new CombatantListAdapter(this.getActivity(), combatPositions);
-        combatantsListView.setAdapter(combatantListAdapter);
+        combatants.setAdapter(combatantListAdapter);
 
         addCombatButton.setOnClickListener(new OnClickListener() {
 
@@ -139,7 +129,7 @@ public class AdventureCombatFragment extends AdventureFragment {
 
         });
 
-        resetButton.setOnClickListener(new OnClickListener() {
+        resetCombat.setOnClickListener(new OnClickListener() {
 
             @Override
             public void onClick(View v) {
@@ -148,7 +138,7 @@ public class AdventureCombatFragment extends AdventureFragment {
             }
         });
 
-        resetButton2.setOnClickListener(new OnClickListener() {
+        resetCombat2.setOnClickListener(new OnClickListener() {
 
             @Override
             public void onClick(View v) {
@@ -157,7 +147,7 @@ public class AdventureCombatFragment extends AdventureFragment {
             }
         });
 
-        combatTurnButton.setOnClickListener(new OnClickListener() {
+        attackButton.setOnClickListener(new OnClickListener() {
 
             @Override
             public void onClick(View v) {
@@ -167,7 +157,7 @@ public class AdventureCombatFragment extends AdventureFragment {
 
         });
 
-        startCombatButton.setOnClickListener(new OnClickListener() {
+        startCombat.setOnClickListener(new OnClickListener() {
 
             @Override
             public void onClick(View v) {
@@ -508,8 +498,8 @@ public class AdventureCombatFragment extends AdventureFragment {
             combatResult.setText("");
         }
 
-        combatTypeSwitch.setClickable(true);
-        combatTypeSwitch.setChecked(false);
+        combatType.setClickable(true);
+        combatType.setChecked(false);
 
         switchLayoutReset(clearResult);
 
@@ -518,13 +508,13 @@ public class AdventureCombatFragment extends AdventureFragment {
 
     protected void switchLayoutReset(boolean clearResult) {
         addCombatButton.setVisibility(View.VISIBLE);
-        combatTypeSwitch.setVisibility(View.VISIBLE);
-        startCombatButton.setVisibility(View.VISIBLE);
-        resetButton.setVisibility(clearResult ? View.GONE : View.VISIBLE);
+        combatType.setVisibility(View.VISIBLE);
+        startCombat.setVisibility(View.VISIBLE);
+        resetCombat.setVisibility(clearResult ? View.GONE : View.VISIBLE);
 
         testLuckButton.setVisibility(View.GONE);
-        combatTurnButton.setVisibility(View.GONE);
-        resetButton2.setVisibility(View.GONE);
+        attackButton.setVisibility(View.GONE);
+        resetCombat2.setVisibility(View.GONE);
     }
 
     protected String combatTypeSwitchBehaviour(boolean isChecked) {
