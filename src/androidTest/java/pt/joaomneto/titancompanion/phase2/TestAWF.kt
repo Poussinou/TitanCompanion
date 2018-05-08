@@ -1,4 +1,4 @@
-package pt.joaomneto.titancompanion
+package pt.joaomneto.titancompanion.phase2
 
 import android.support.test.espresso.Espresso.onData
 import android.support.test.espresso.action.ViewActions.click
